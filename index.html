@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Последние новости</title>
+
+    <style>
+        body {
+            margin: 0 auto;
+            width: 80%;
+        }
+        .wrap{
+            margin: 40px auto;
+            width: 80%;
+        }
+        .news{
+            float: left;
+            margin: 0 2%;
+            /*outline: 1px solid darkblue;*/
+            width: 45%;
+        }
+        .news-title{
+            background: lightgray;
+            font-weight: 500;
+            padding: 5px 5px;
+        }
+        .news-text{
+            background: #eeeeee;
+            padding: 5px 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <div class="news">
+            <div class="news-title">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem, repudiandae.</div>
+            <div class="news-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium assumenda autem consequuntur corporis cumque eaque facere fugit, in incidunt modi molestias natus nihil nulla obcaecati omnis, quo rem rerum temporibus. Aperiam incidunt neque officia quisquam.</div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Создаём новый объект XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+        // 2. Конфигурируем его: GET-запрос на URL
+        xhr.open('GET', 'localhost:8000/news', false);
+        // 3. Отсылаем запрос
+        xhr.send();
+        // 4. Если код ответа сервера не 200, то это ошибка
+        if (xhr.status != 200) {
+            // обработать ошибку
+            alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+        } else {
+            // вывести результат
+            alert( xhr.responseText ); // responseText -- текст ответа.
+        }
+    </script>
+</body>
+</html>
