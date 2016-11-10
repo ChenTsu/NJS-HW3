@@ -1,3 +1,4 @@
+var fs = require('fs');
 var http = require('http');
 var urlutils = require('url');
 var req = require('request');
@@ -12,9 +13,10 @@ http.createServer( function (request, response) {
 
     if ( params.path === '/news') {
         console.log('ща будут новости');
-        // передать response в качкстве параметра это походу единственный способ дождаться ответа
-        // пока response будет мотыляться в другой функции, эта callback-функция будет ждать(как я понял)
+        // передать response в качестве параметра это походу единственный способ дождаться ответа
+        // пока response будет мотыляться в другой функции, callback-функция для createServer будет ждать(как я понял)
         // иначе node запустив callback помчится выполнять код дальше, не дожидаясь результатов
+        // или node ждёт response.end() ?
         getNews(response);
     }
     else
@@ -38,9 +40,9 @@ http.createServer( function (request, response) {
 
 function getNews(responseOnRequestToServer) {
     console.log('посылаем гонца за новостями');
-    req('http://news.google.ru', function (error, response, body) {
+    req('http://news.google.ru', function (error, newsResponse, body) {
         var news='';
-        if (!error && response.statusCode == 200) {
+        if (!error && newsResponse.statusCode == 200) {
             var $ = cheer_io.load(body);  // загружаем страницу новостей
             $('.esc-body').each(function (i, element)
             {
@@ -53,8 +55,16 @@ function getNews(responseOnRequestToServer) {
                 'Content-Type': 'text/html; charset=utf-8',
                 'Content-Length': news.length
             });
-            responseOnRequestToServer.write(news);
-            responseOnRequestToServer.end();
+
+            // fs.createReadStream('index.html').pipe(responseOnRequestToServer); // потоком выдаёт файл на запрос, удобно если не нужно менять файл
+            fs.readFile('./index.html', 'utf8', function (err, data) {
+                var _$ = cheer_io.load(data);
+                _$('.wrap').append(news);
+
+                responseOnRequestToServer.write(_$.html());
+                responseOnRequestToServer.end();
+            });
+
             console.log('гонец успешно вернулся');
         }
         else
