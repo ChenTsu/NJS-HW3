@@ -43,28 +43,35 @@ function getNews(responseOnRequestToServer) {
     req('http://news.google.ru', function (error, newsResponse, body) {
         var news='';
         if (!error && newsResponse.statusCode == 200) {
+            responseOnRequestToServer.writeHead(200, {
+                'Content-Type': 'text/html; charset=utf-8',
+                // 'Content-Length': news.length
+            });
+
+            news = fs.readFileSync('./view/header.html');
+            responseOnRequestToServer.write(news);
+
             var $ = cheer_io.load(body);  // загружаем страницу новостей
             $('.esc-body').each(function (i, element)
             {
-                news +='<div class="news">';
+                news ='<div class="news">';
                 news +='<div class="news-title"><a href="'+$(element).find('.esc-lead-article-title > a').attr('url')+'" >'+ $(element).find('.esc-lead-article-title > a > span').text().trim() + '</a></div>';
                 news +='<div class="news-text">'+$(element).find('.esc-lead-snippet-wrapper').text().trim() +'</div></div>';
+                responseOnRequestToServer.write(news);
             });
 
-            responseOnRequestToServer.writeHead(200, {
-                'Content-Type': 'text/html; charset=utf-8',
-                'Content-Length': news.length
-            });
+            news = fs.readFileSync('./view/bottom.html');
+            responseOnRequestToServer.write(news);
 
             // fs.createReadStream('index.html').pipe(responseOnRequestToServer); // потоком выдаёт файл на запрос, удобно если не нужно менять файл
-            fs.readFile('./index.html', 'utf8', function (err, data) {
-                var _$ = cheer_io.load(data);
-                _$('.wrap').append(news);
-
-                responseOnRequestToServer.write(_$.html());
-                responseOnRequestToServer.end();
-            });
-
+            // fs.readFile('./index.html', 'utf8', function (err, data) {
+            //     var _$ = cheer_io.load(data);
+            //     _$('.wrap').append(news);
+            //
+            //     responseOnRequestToServer.write(_$.html());
+            //     responseOnRequestToServer.end();
+            // });
+            responseOnRequestToServer.end();
             console.log('гонец успешно вернулся');
         }
         else
